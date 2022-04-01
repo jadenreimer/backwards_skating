@@ -74,11 +74,11 @@ plot(x, right_loc_mod)
 plot(x, left_loc_mod)
 
 % One c-cut with derivatives
-% f = fit(x_ccuts{2, 1}, y_ccuts{2, 1}, 'sin3');
-% [fx, fxx] = differentiate(f, x_ccuts{2, 1});
-% f_x = fit(x_ccuts{2, 1}, fx, 'sin3');
-% f_xx = fit(x_ccuts{2, 1}, fxx, 'sin3');
-% 
+% f = fit(x, y, 'sin3');
+% [fx, fxx] = differentiate(f, x);
+% f_x = fit(x, fx, 'sin3');
+% f_xx = fit(x, fxx, 'sin3');
+
 % figure(2)
 % hold on
 % plot(f, 'r', x_ccuts{2, 1}, y_ccuts{2, 1})
@@ -86,19 +86,6 @@ plot(x, left_loc_mod)
 % plot(f_xx, 'b', x_ccuts{2, 1}, y_ccuts{2, 1})
 % test = integrate(f_xx, x_ccuts{2, 1}, 0);
 % plot(x_ccuts{2, 1}, test, '-r')
-
-f = fit(x_ccuts{1, 1}, y_ccuts{1, 1}, 'sin3');
-[fx, fxx] = differentiate(f, x_ccuts{1, 1});
-f_x = fit(x_ccuts{1, 1}, fx, 'sin3');
-f_xx = fit(x_ccuts{1, 1}, fxx, 'sin3');
-
-figure(2)
-hold on
-plot(f, 'r', x_ccuts{1, 1}, y_ccuts{1, 1})
-plot(f_x, 'g', x_ccuts{1, 1}, y_ccuts{1, 1})
-plot(f_xx, 'b', x_ccuts{1, 1}, y_ccuts{1, 1})
-test = integrate(f_xx, x_ccuts{1, 1}, 0);
-plot(x_ccuts{1, 1}, test, '-r')
 
 
 % All c-cut data segments
@@ -116,10 +103,9 @@ for i = 1:size(y_ccuts)
 %         nexttitle
         subplot(num_ccuts, 2, i*num_ccuts/2 + j);
         plot(x_ccuts{i, j}, y_ccuts{i, j})
-%         plot(acceleration, x_ccuts{i, j}, y_ccuts{i, j}) % Use to plot
-%         position and acceleration curves
 
-        area_ccuts{i, j} = sum(y_ccuts{i, j})/length(y_ccuts{i, j})*(x_ccuts{i, j}(length(x_ccuts{i, j}))-x_ccuts{i, j}(1));
+        integral = integrate(f_xx, x_ccuts{i, j}, 0);
+        area_ccuts{i, j} = integral(length(integral))
     end
 end
 
