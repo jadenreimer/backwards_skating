@@ -9,7 +9,7 @@
 % start of data) an incomplete c-cut will be accepted as a full c-cut
 
 % clc; clear all ;
-num_ccuts = 4; % Number per leg will be half this
+num_ccuts = 8; % Must be an even number. Number per leg will be half this.
 x = transpose(linspace(0, num_ccuts*pi, num_ccuts*50));
 right_loc = sin(x);
 left_loc = -sin(x - pi);
@@ -19,6 +19,7 @@ COM_loc = zeros(num_ccuts*50);
     % COM position normalization goes here
 zero_cross = 0; c_start = 0; c_end = 0;
 x_ccuts = cell(2, num_ccuts/2); y_ccuts = cell(2, num_ccuts/2); area_ccuts = cell(2, num_ccuts/2);
+position = cell(2, num_ccuts/2); velocity = cell(2, num_ccuts/2); acceleration = cell(2, num_ccuts/2);
 i_ccuts = 1;
 
 right_min = 0.1;    % In practice, this is the max of either the minimum position
@@ -67,38 +68,38 @@ for i = 1:length(right_loc)
 end
 
 % Position data
-figure (1)
-hold on
-plot(x, COM_loc)
-plot(x, right_loc_mod)
-plot(x, left_loc_mod)
-
-% One c-cut with derivatives
-% f = fit(x_ccuts{2, 1}, y_ccuts{2, 1}, 'sin3');
-% [fx, fxx] = differentiate(f, x_ccuts{2, 1});
-% f_x = fit(x_ccuts{2, 1}, fx, 'sin3');
-% f_xx = fit(x_ccuts{2, 1}, fxx, 'sin3');
+% figure (1)
+% hold on
+% plot(x, COM_loc)
+% plot(x, right_loc_mod)
+% plot(x, left_loc_mod)
+% 
+% % One c-cut with derivatives
+% % f = fit(x_ccuts{2, 1}, y_ccuts{2, 1}, 'sin3');
+% % [fx, fxx] = differentiate(f, x_ccuts{2, 1});
+% % f_x = fit(x_ccuts{2, 1}, fx, 'sin3');
+% % f_xx = fit(x_ccuts{2, 1}, fxx, 'sin3');
+% % 
+% % figure(2)
+% % hold on
+% % plot(f, 'r', x_ccuts{2, 1}, y_ccuts{2, 1})
+% % plot(f_x, 'g', x_ccuts{2, 1}, y_ccuts{2, 1})
+% % plot(f_xx, 'b', x_ccuts{2, 1}, y_ccuts{2, 1})
+% % test = integrate(f_xx, x_ccuts{2, 1}, 0);
+% % plot(x_ccuts{2, 1}, test, '-r')
+% 
+% f = fit(x_ccuts{1, 1}, y_ccuts{1, 1}, 'sin3');
+% [fx, fxx] = differentiate(f, x_ccuts{1, 1});
+% f_x = fit(x_ccuts{1, 1}, fx, 'sin3');
+% f_xx = fit(x_ccuts{1, 1}, fxx, 'sin3');
 % 
 % figure(2)
 % hold on
-% plot(f, 'r', x_ccuts{2, 1}, y_ccuts{2, 1})
-% plot(f_x, 'g', x_ccuts{2, 1}, y_ccuts{2, 1})
-% plot(f_xx, 'b', x_ccuts{2, 1}, y_ccuts{2, 1})
-% test = integrate(f_xx, x_ccuts{2, 1}, 0);
-% plot(x_ccuts{2, 1}, test, '-r')
-
-f = fit(x_ccuts{1, 1}, y_ccuts{1, 1}, 'sin3');
-[fx, fxx] = differentiate(f, x_ccuts{1, 1});
-f_x = fit(x_ccuts{1, 1}, fx, 'sin3');
-f_xx = fit(x_ccuts{1, 1}, fxx, 'sin3');
-
-figure(2)
-hold on
-plot(f, 'r', x_ccuts{1, 1}, y_ccuts{1, 1})
-plot(f_x, 'g', x_ccuts{1, 1}, y_ccuts{1, 1})
-plot(f_xx, 'b', x_ccuts{1, 1}, y_ccuts{1, 1})
-test = integrate(f_xx, x_ccuts{1, 1}, 0);
-plot(x_ccuts{1, 1}, test, '-r')
+% plot(f, 'r', x_ccuts{1, 1}, y_ccuts{1, 1})
+% plot(f_x, 'g', x_ccuts{1, 1}, y_ccuts{1, 1})
+% plot(f_xx, 'b', x_ccuts{1, 1}, y_ccuts{1, 1})
+% test = integrate(f_xx, x_ccuts{1, 1}, 0);
+% plot(x_ccuts{1, 1}, test, '-r')
 
 
 % All c-cut data segments
@@ -108,15 +109,15 @@ for i = 1:size(y_ccuts)
     for j = 1:length(y_ccuts)
 %         x_ccut = 1:length(y_ccuts{i, j});
         
-        position = fit(x_ccuts{i, j}, y_ccuts{i, j}, 'sin3');
-        [v, a] = differentiate(position, x_ccuts{i, j});
-        velocity = fit(x_ccuts{i, j}, v, 'sin3');
-        acceleration = fit(x_ccuts{i, j}, a, 'sin3');
+        position{i, j} = fit(x_ccuts{i, j}, y_ccuts{i, j}, 'sin3');
+        [v, a] = differentiate(position{i, j}, x_ccuts{i, j});
+        velocity{i, j} = fit(x_ccuts{i, j}, v, 'sin3');
+        acceleration{i, j} = fit(x_ccuts{i, j}, a, 'sin3');
         
 %         nexttitle
         subplot(num_ccuts, 2, i*num_ccuts/2 + j);
         plot(x_ccuts{i, j}, y_ccuts{i, j})
-%         plot(acceleration, x_ccuts{i, j}, y_ccuts{i, j}) % Use to plot
+%         plot(acceleration{i, j}, x_ccuts{i, j}, y_ccuts{i, j}) % Use to plot
 %         position and acceleration curves
 
         area_ccuts{i, j} = sum(y_ccuts{i, j})/length(y_ccuts{i, j})*(x_ccuts{i, j}(length(x_ccuts{i, j}))-x_ccuts{i, j}(1));
