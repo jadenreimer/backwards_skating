@@ -18,69 +18,84 @@ right_loc = [x; sin(x)];%cat(2, x, sin(x));
 left_loc = [x; -sin(x-pi)];%cat(2, x, -sin(x - pi));
 COM_loc = [bsxfun(@plus, x, 0.1); 0.02*sin(x)];
 
-
-% Position data
-figure (1)
-hold on
-plot(COM_loc(1, :), COM_loc(2, :))
-plot(right_loc(1, :), right_loc(2, :))
-plot(left_loc(1, :), left_loc(2, :))
-
-
-
-
-
 % Preprocess position data
     % COM position normalization goes here
-% zero_cross = 0; c_start = 0; c_end = 0;
-% x_ccuts = cell(2, num_ccuts/2); y_ccuts = cell(2, num_ccuts/2); area_ccuts = cell(2, num_ccuts/2);
-% position = cell(2, num_ccuts/2); velocity = cell(2, num_ccuts/2); acceleration = cell(2, num_ccuts/2);
-% i_ccuts = 1;
-% 
-% right_min = 0.1;    % In practice, this is the max of either the minimum position
-%                     % w.r.t COM or the position of the COM
-% left_min = -0.1;    % In practice, this is the min of either the maximum position
-%                     % w.r.t COM or the position of the COM
-% left_loc_mod = left_loc;
-% right_loc_mod = right_loc;
-% 
-% % Left position
-% for i = 1:length(left_loc)
-%     % Flatten position
-%     if left_loc(1, ;)(i) > left_min
-%         left_loc_mod(i) = left_min;
-%     end
-%     
-%     if left_loc(i) < left_min  && c_start <= c_end
-%         c_start = i;
-%     elseif c_start > c_end && left_loc(i) > left_min;
-%         c_end = i;
-%         y_ccuts{1, i_ccuts} = left_loc_mod(c_start:c_end);
+zero_cross = 0; c_start = 0; c_end = 0;
+x_ccuts = cell(2, num_ccuts/2); y_ccuts = cell(2, num_ccuts/2); area_ccuts = cell(2, num_ccuts/2);
+position = cell(2, num_ccuts/2); velocity = cell(2, num_ccuts/2); acceleration = cell(2, num_ccuts/2);
+i_ccuts = 1;
+
+right_min = 0.1;    % In practice, this is the max of either the minimum position
+                    % w.r.t COM or the position of the COM
+left_min = -0.1;    % In practice, this is the min of either the maximum position
+                    % w.r.t COM or the position of the COM
+left_loc_mod = left_loc;
+right_loc_mod = right_loc;
+
+% Left position
+for i = 1:length(left_loc(1, :))
+    % Flatten position
+    if left_loc(2, i) > left_min
+        left_loc_mod(2, i) = left_min;
+    end
+    
+    if left_loc(2, i) < left_min  && c_start <= c_end
+        c_start = i;
+    elseif c_start > c_end && left_loc(2, i) > left_min;
+        c_end = i;
+        y_ccuts{1, i_ccuts} = left_loc_mod(:, c_start:c_end);
 %         x_ccuts{1, i_ccuts} = x(c_start:c_end);
-%         i_ccuts = i_ccuts + 1;
-%         c_start = c_end;
-%     end
-% end
-% 
-% c_start = 0; c_end = 0;
-% i_ccuts = 1;
-% % Right position
-% for i = 1:length(right_loc)
-%     % Flatten position
-%     if right_loc(i) < right_min
-%         right_loc_mod(i) = right_min;
-%     end
-%     
-%     if right_loc(i) > right_min  && c_start <= c_end
-%         c_start = i;
-%     elseif c_start > c_end && right_loc(i) < right_min;
-%         c_end = i;
-%         y_ccuts{2, i_ccuts} = right_loc_mod(c_start:c_end);
+        i_ccuts = i_ccuts + 1;
+        c_start = c_end;
+    end
+end
+
+c_start = 0; c_end = 0;
+i_ccuts = 1;
+% Right position
+for i = 1:length(right_loc(1, :))
+    % Flatten position
+    if right_loc(2, i) < right_min
+        right_loc_mod(2, i) = right_min;
+    end
+    
+    if right_loc(2, i) > right_min  && c_start <= c_end
+        c_start = i;
+    elseif c_start > c_end && right_loc(2, i) < right_min;
+        c_end = i;
+        y_ccuts{2, i_ccuts} = right_loc_mod(:, c_start:c_end);
 %         x_ccuts{2, i_ccuts} = x(c_start:c_end);
-%         i_ccuts = i_ccuts + 1;
-%         c_start = c_end;
-%     end
+        i_ccuts = i_ccuts + 1;
+        c_start = c_end;
+    end
+end
+
+% Position data
+% figure (1)
+% hold on
+% plot(COM_loc(1, :), COM_loc(2, :))
+% plot(right_loc_mod(1, :), right_loc_mod(2, :))
+% plot(left_loc_mod(1, :), left_loc_mod(2, :))
+% plot(y_ccuts{1, 1}(1, :), y_ccuts{1, 1}(2, :))
+% plot(y_ccuts{2, 1}(1, :), y_ccuts{2, 1}(2, :))
+
+
+
+
+% time-varying plot used to show skater path captured in data
+% for i = 1:length(x)
+% %     x = bsxfun(@plus, x, 0.1); % add 0.1 to all x
+% %     f = fit(x, y, 'sin3');
+% %     plot(f, 'r', x, y);
+% %     hold on
+% %     plot(f_x, 'b', x, y);
+% %     plot(f_xx, 'g', x, y);
+% 
+% %     plot(x, y)
+% %     drawnow
+% %     pause(0.001)
 % end
+
 
 
 
@@ -88,6 +103,9 @@ plot(left_loc(1, :), left_loc(2, :))
 % Capture angles from the COM midline and the ankles
 % theta_r = ;
 % theta_l = ;
+
+
+
 
 
 
