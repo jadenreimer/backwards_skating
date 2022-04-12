@@ -14,9 +14,10 @@
 % y = position across the skater's body, perpendicular to travel
 num_ccuts = 8; % Must be an even number. Number per leg will be half this.
 x = (linspace(0, num_ccuts*pi, num_ccuts*50));
-right_loc = [x; sin(x)];%cat(2, x, sin(x));
-left_loc = [x; -sin(x-pi)];%cat(2, x, -sin(x - pi));
-COM_loc = [bsxfun(@plus, x, 0.1); 0.02*sin(x)];
+x_loc = (linspace(0, 10, num_ccuts*50));
+right_loc = [x_loc; 0.3*sin(x)];%cat(2, x, sin(x));
+left_loc = [x_loc; -0.3*sin(x-pi)];%cat(2, x, -sin(x - pi));
+COM_loc = [bsxfun(@plus, x_loc, 0.1); 0.02*sin(x)];
 
 % Preprocess position data
     % COM position normalization goes here
@@ -81,20 +82,23 @@ end
 
 
 
-
+figure(7);
 % time-varying plot used to show skater path captured in data
-% for i = 1:length(x)
-% %     x = bsxfun(@plus, x, 0.1); % add 0.1 to all x
-% %     f = fit(x, y, 'sin3');
-% %     plot(f, 'r', x, y);
-% %     hold on
-% %     plot(f_x, 'b', x, y);
-% %     plot(f_xx, 'g', x, y);
-% 
-% %     plot(x, y)
-% %     drawnow
-% %     pause(0.001)
-% end
+for i = 1:length(right_loc_mod(1, :))
+%     x = bsxfun(@plus, x, 0.1); % add 0.1 to all x
+%     f = fit(x, y, 'sin3');
+%     plot(f, 'r', x, y);
+%     hold on
+%     plot(f_x, 'b', x, y);
+%     plot(f_xx, 'g', x, y);
+
+%     hold on % Uncomment this to taste the rainbow. Overlays all skater positions
+    % Plots one point in time of all positions
+    plot([right_loc_mod(1, i), COM_loc(1, i), left_loc_mod(1, i)], [right_loc_mod(2, i), COM_loc(2, i), left_loc_mod(2, i)])
+    axis([-1 10 -0.5 0.5]) % x0 x1 y0 y1
+    drawnow
+    pause(0.001)
+end
 
 
 
