@@ -18,31 +18,36 @@ x_loc = (linspace(0, 10, num_ccuts*50)); % used for position data
 right_loc = [x_loc; 0.3*sin(x)];%cat(2, x, sin(x));
 left_loc = [x_loc; -0.3*sin(x-pi)];%cat(2, x, -sin(x - pi));
 
+% r_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))))-(1.2-(1-exp(-0.6*x_loc)));
+% l_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))))+(1.2-(1-exp(-0.6*x_loc)));
+% theta_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))));
 v_scaler = 0.25*(sin(num_ccuts*x_loc)./exp(.2*x_loc))+(1-exp(-0.6*x_loc));
-r_scaler = (0.9*sin(4*x).*(1.2-(1-exp(-0.6*x_loc))));
-l_scaler = (0.9*sin(4*x).*(1.2-(1-exp(-0.6*x_loc))));
+theta_scaler = -sin(num_ccuts*x_loc/2);
 
+% Initial conditions
 right_loc_mod = [0; 0.2];
 left_loc_mod = [0; -0.2];
 COM_loc = [0; 0];
 
-theta = 5;
-delta_v = 0.1;
+theta = 6/360*pi;
+v = 0.08;
 
 for i = 2:length(x_loc)
-    % X position update
-    x_comp = cos(theta * theta_scaler(i));
-    r_comp = sin(theta * r_scaler(i));
-    l_comp = sin(theta * l_scaler(i));
+%     X position update
+%     x_comp = cos(theta * theta_scaler(i));
+    xr_comp = 0.1*cos(theta * theta_scaler(i));
+    xl_comp = 0.1*cos(theta * theta_scaler(i));
+    yr_comp = 0.1*sin(theta * theta_scaler(i));
+    yl_comp = 0.1*sin(theta * theta_scaler(i));
     
-    right_loc_mod(1, i) = right_loc_mod(1, i-1) + delta_v * scaler(i) * x_comp;
-    left_loc_mod(1, i) = left_loc_mod(1, i-1) + delta_v * scaler(i) * x_comp;
-    COM_loc(1, i) = COM_loc(1, i-1) + delta_v * scaler(i) * x_comp;
+    right_loc_mod(1, i) = right_loc_mod(1, i-1) + v * scaler(i);
+    left_loc_mod(1, i) = left_loc_mod(1, i-1) + v * scaler(i);% + (+1) * xl_comp;
+    COM_loc(1, i) = COM_loc(1, i-1)+v * scaler(i);
     
-    % Y position update
-    right_loc_mod(2, i) = right_loc_mod(2, i-1) + delta_v * scaler(i) * y_comp;
-    left_loc_mod(2, i) = left_loc_mod(2, i-1) + delta_v * scaler(i) * y_comp;
-    COM_loc(2, i) = COM_loc(2, i-1) + delta_v * scaler(i) * y_comp;
+%     Y position update
+    right_loc_mod(2, i) = 0.1*sin(theta * theta_scaler(i)) + right_loc_mod(2, i-1);% + delta_v * scaler(i);% * yr_comp;
+    left_loc_mod(2, i) = 0.1*sin(theta * theta_scaler(i)) + left_loc_mod(2, i-1);% + delta_v * scaler(i) * yl_comp;% + (-1) * yl_comp;
+    COM_loc(2, i) = 0.1*sin(theta * theta_scaler(i)) + COM_loc(2, i-1);% + delta_v * scaler(i);
 end
 
 % Preprocess position data
@@ -120,7 +125,36 @@ end
 
 
 
+% Derivatives of translational position
+% x_COM = transpose(COM_loc(1, :));
+% f = fit(transpose(x_loc), x_COM, 'sin3');
+% [fx, fxx] = differentiate(f, x_COM);
+% f_x = fit(x_COM, fx, 'sin3');
+% f_xx = fit(x_COM, fxx, 'sin3');
+% 
+% figure(2)
+% hold on
+% plot(f, 'r', x_loc, COM_loc(1, :))
+% plot(f_x, 'g', x_loc, COM_loc(1, :))
+% plot(f_xx, 'b', x_loc, COM_loc(1, :))
+% hold off
+% 
+% y_COM = transpose(COM_loc(2, :));
+% f = fit(transpose(x_loc), y_COM, 'sin3');
+% [fx, fxx] = differentiate(f, y_COM);
+% f_x = fit(y_COM, fx, 'sin3');
+% f_xx = fit(y_COM, fxx, 'sin3');
+% 
+% figure(3)
+% hold on
+% plot(f, 'r', x_loc, COM_loc(2, :))
+% plot(f_x, 'g', x_loc, COM_loc(2, :))
+% plot(f_xx, 'b', x_loc, COM_loc(2, :))
+% hold off
+
+
 figure(7);
+pause(3)
 % time-varying plot used to show skater path captured in data
 for i = 1:length(right_loc_mod(1, :))
 %     x = bsxfun(@plus, x, 0.1); % add 0.1 to all x
@@ -135,19 +169,8 @@ for i = 1:length(right_loc_mod(1, :))
     plot([right_loc_mod(1, i), COM_loc(1, i), left_loc_mod(1, i)], [right_loc_mod(2, i), COM_loc(2, i), left_loc_mod(2, i)])
     axis([-1 10 -0.5 0.5]) % x0 x1 y0 y1
     drawnow
-    pause(0.001)
+    pause(0.0175)
 end
-
-
-
-
-
-% Capture angles from the COM midline and the ankles
-% theta_r = ;
-% theta_l = ;
-
-
-
 
 
 
