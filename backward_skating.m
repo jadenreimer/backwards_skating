@@ -18,6 +18,36 @@ x_loc = (linspace(0, 10, num_ccuts*50)); % used for position data
 right_loc = [x_loc; 0.3*sin(x)];%cat(2, x, sin(x));
 left_loc = [x_loc; -0.3*sin(x-pi)];%cat(2, x, -sin(x - pi));
 
+r_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))))-(1.2-(1-exp(-0.6*x_loc)));
+l_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))))+(1.2-(1-exp(-0.6*x_loc)));
+theta_scaler = (0.9*sin(num_ccuts*x_loc).*(1.2-(1-exp(-0.6*x_loc))));
+v_scaler = 0.25*(sin(num_ccuts*x_loc)./exp(.2*x_loc))+(1-exp(-0.6*x_loc));
+
+right_loc_mod = [0; 0.2];
+left_loc_mod = [0; -0.2];
+COM_loc = [0; 0];
+
+theta = 5;
+delta_v = 0.1;
+
+for i = 2:length(x_loc)
+    % X position update
+%     x_comp = cos(theta * theta_scaler(i));
+    xr_comp = cos(theta * r_scaler(i));
+    xl_comp = cos(theta * l_scaler(i));
+    yr_comp = sin(theta * r_scaler(i));
+    yl_comp = sin(theta * l_scaler(i));
+    
+    right_loc_mod(1, i) = right_loc_mod(1, i-1) + delta_v * scaler(i);
+    left_loc_mod(1, i) = left_loc_mod(1, i-1) + delta_v * scaler(i);
+    COM_loc(1, i) = COM_loc(1, i-1) + delta_v * scaler(i);
+    
+    % Y position update
+    right_loc_mod(2, i) = right_loc_mod(2, i-1);
+    left_loc_mod(2, i) = left_loc_mod(2, i-1);
+    COM_loc(2, i) = COM_loc(2, i-1);
+end
+
 % Preprocess position data
 
 % Centre of Mass
@@ -25,61 +55,61 @@ left_loc = [x_loc; -0.3*sin(x-pi)];%cat(2, x, -sin(x - pi));
 % 2. Add a sine wave as the y-axis sway of the skater
 % 3. Add an impulse "generated" from each c-cut, so a sine wave twice the
 % period of the c-cuts
-COM_loc = [bsxfun(@plus, x_loc, 0.1); -0.05*sin(x)];
-ccut_impulse = 0.5*sin(2*x-pi/2)+0.5;
-COM_loc(1, :) = COM_loc(1, :) + ccut_impulse;
-
-% Left position
-zero_cross = 0; c_start = 0; c_end = 0;
-x_ccuts = cell(2, num_ccuts/2); y_ccuts = cell(2, num_ccuts/2); area_ccuts = cell(2, num_ccuts/2);
-position = cell(2, num_ccuts/2); velocity = cell(2, num_ccuts/2); acceleration = cell(2, num_ccuts/2);
-i_ccuts = 1;
-
-right_min = 0.1;    % In practice, this is the max of either the minimum position
-                    % w.r.t COM or the position of the COM
-left_min = -0.1;    % In practice, this is the min of either the maximum position
-                    % w.r.t COM or the position of the COM
-left_loc_mod = left_loc;
-right_loc_mod = right_loc;
-
-for i = 1:length(left_loc(1, :))
-    % Flatten position and add the impulse of the opposite leg c-cut
-    if left_loc(2, i) > left_min
-        left_loc_mod(2, i) = left_min;
-        left_loc_mod(1, i) = left_loc_mod(1, i) + ccut_impulse(i);
-    end
-    
-    if left_loc(2, i) < left_min  && c_start <= c_end
-        c_start = i;
-    elseif c_start > c_end && left_loc(2, i) > left_min;
-        c_end = i;
-        y_ccuts{1, i_ccuts} = left_loc_mod(:, c_start:c_end);
-%         x_ccuts{1, i_ccuts} = x(c_start:c_end);
-        i_ccuts = i_ccuts + 1;
-        c_start = c_end;
-    end
-end
-
-c_start = 0; c_end = 0;
-i_ccuts = 1;
-% Right position
-for i = 1:length(right_loc(1, :))
-    % Flatten position
-    if right_loc(2, i) < right_min
-        right_loc_mod(2, i) = right_min;
-        right_loc_mod(1, i) = right_loc_mod(1, i) + ccut_impulse(i);
-    end
-    
-    if right_loc(2, i) > right_min  && c_start <= c_end
-        c_start = i;
-    elseif c_start > c_end && right_loc(2, i) < right_min;
-        c_end = i;
-        y_ccuts{2, i_ccuts} = right_loc_mod(:, c_start:c_end);
-%         x_ccuts{2, i_ccuts} = x(c_start:c_end);
-        i_ccuts = i_ccuts + 1;
-        c_start = c_end;
-    end
-end
+% COM_loc = [bsxfun(@plus, x_loc, 0.1); -0.05*sin(x)];
+% ccut_impulse = 0.5*sin(2*x-pi/2)+0.5;
+% COM_loc(1, :) = COM_loc(1, :) + ccut_impulse;
+% 
+% % Left position
+% zero_cross = 0; c_start = 0; c_end = 0;
+% x_ccuts = cell(2, num_ccuts/2); y_ccuts = cell(2, num_ccuts/2); area_ccuts = cell(2, num_ccuts/2);
+% position = cell(2, num_ccuts/2); velocity = cell(2, num_ccuts/2); acceleration = cell(2, num_ccuts/2);
+% i_ccuts = 1;
+% 
+% right_min = 0.1;    % In practice, this is the max of either the minimum position
+%                     % w.r.t COM or the position of the COM
+% left_min = -0.1;    % In practice, this is the min of either the maximum position
+%                     % w.r.t COM or the position of the COM
+% left_loc_mod = left_loc;
+% right_loc_mod = right_loc;
+% 
+% for i = 1:length(left_loc(1, :))
+%     % Flatten position and add the impulse of the opposite leg c-cut
+%     if left_loc(2, i) > left_min
+%         left_loc_mod(2, i) = left_min;
+%         left_loc_mod(1, i) = left_loc_mod(1, i) + ccut_impulse(i);
+%     end
+%     
+%     if left_loc(2, i) < left_min  && c_start <= c_end
+%         c_start = i;
+%     elseif c_start > c_end && left_loc(2, i) > left_min;
+%         c_end = i;
+%         y_ccuts{1, i_ccuts} = left_loc_mod(:, c_start:c_end);
+% %         x_ccuts{1, i_ccuts} = x(c_start:c_end);
+%         i_ccuts = i_ccuts + 1;
+%         c_start = c_end;
+%     end
+% end
+% 
+% c_start = 0; c_end = 0;
+% i_ccuts = 1;
+% % Right position
+% for i = 1:length(right_loc(1, :))
+%     % Flatten position
+%     if right_loc(2, i) < right_min
+%         right_loc_mod(2, i) = right_min;
+%         right_loc_mod(1, i) = right_loc_mod(1, i) + ccut_impulse(i);
+%     end
+%     
+%     if right_loc(2, i) > right_min  && c_start <= c_end
+%         c_start = i;
+%     elseif c_start > c_end && right_loc(2, i) < right_min;
+%         c_end = i;
+%         y_ccuts{2, i_ccuts} = right_loc_mod(:, c_start:c_end);
+% %         x_ccuts{2, i_ccuts} = x(c_start:c_end);
+%         i_ccuts = i_ccuts + 1;
+%         c_start = c_end;
+%     end
+% end
 
 
 % Position data
